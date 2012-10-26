@@ -11,11 +11,11 @@ public class mod_startingInventory extends BaseMod
 {
     @MLProp(info="Set to true to allow checking for mod updates, false to disable")
     public static boolean allowUpdateCheck = true;
-	@MLProp(info="The length of time in game time ticks (1/20th of a second) that items are allowed to spawn in a fresh world.  If you are on a slower machine and are having trouble with items not spawning, try setting this a little higher")
-	public static int tickWindow = 100;
+    @MLProp(info="The length of time in game time ticks (1/20th of a second) that items are allowed to spawn in a fresh world.  If you are on a slower machine and are having trouble with items not spawning, try setting this a little higher")
+    public static int tickWindow = 100;
     @MLProp(info="Items will be added to the bonus chest when true (meaning you must set bonus chest to ON). If false, a separate chest will be placed\n\n**ONLY EDIT WHAT IS BELOW THIS**")
-	public static boolean useBonusChest = false;
-	
+    public static boolean useBonusChest = false;
+    
     boolean canGiveItems;
     String fileName;
     File mcdir;
@@ -77,7 +77,7 @@ public class mod_startingInventory extends BaseMod
                     mc.thePlayer.addChatMessage(msg);
             checkUpdate = false;
         }
-        	
+            
         return canGiveItems && mc.isSingleplayer() && isFreshWorld(mc);
     }
     
@@ -136,14 +136,14 @@ public class mod_startingInventory extends BaseMod
     
     public boolean isFreshWorld(Minecraft mc)
     {
-    	try
-    	{
-    		return (int)mc.theWorld.worldInfo.getWorldTime() < tickWindow;
-    	}
-    	catch(Exception e)
-    	{
-    		return false;
-    	}
+        try
+        {
+            return (int)mc.theWorld.worldInfo.getWorldTime() < tickWindow;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
     }
 
     public boolean addItems(World world)
