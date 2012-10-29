@@ -26,7 +26,7 @@ public class mod_startingInventory extends BaseMod
     
     private boolean checkUpdate;
     private ModVersionChecker versionChecker;
-    private String versionURL = "https://dl.dropbox.com/u/20748481/Minecraft/1.3.1/startingInventory.version";
+    private String versionURL = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.2/startingInventory.version";
     private String mcfTopic = "http://www.minecraftforum.net/topic/1009577-";
 
     public mod_startingInventory()
@@ -55,7 +55,7 @@ public class mod_startingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.3.2.r01";
+        return "ML 1.4.2.r01";
     }
 
     @Override
