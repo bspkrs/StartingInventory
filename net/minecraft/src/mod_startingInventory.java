@@ -1,6 +1,8 @@
 package net.minecraft.src;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -18,22 +20,25 @@ public class mod_startingInventory extends BaseMod
     
     boolean canGiveItems;
     String fileName;
+    String configPath;
     File mcdir;
     File file;
     private Scanner scan;
     private List list;
     private TileEntityChest chest;
+    private String[] defaultItems = {"272, 1", "273, 1", "274, 1", "275, 1", "260, 16", "50, 16"};
     
     private boolean checkUpdate;
     private ModVersionChecker versionChecker;
-    private String versionURL = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.2/startingInventory.version";
+    private String versionURL = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.4/startingInventory.version";
     private String mcfTopic = "http://www.minecraftforum.net/topic/1009577-";
 
     public mod_startingInventory()
     {
-        fileName = "startingInventory";
         mcdir = Minecraft.getMinecraftDir();
-        file = new File(mcdir, "/mods/daftpvf/" + fileName + ".txt");
+        fileName = "startingInventory.txt";
+        configPath = "/config/StartingInventory/";
+        file = new File(mcdir, configPath + fileName);
         list = new ArrayList();
         list.clear();
         if(!file.exists() || scan == null)
@@ -55,7 +60,7 @@ public class mod_startingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.4.2.r01";
+        return "ML 1.4.4.r01";
     }
 
     @Override
@@ -210,18 +215,27 @@ public class mod_startingInventory extends BaseMod
 
     public void createFile()
     {
-        File dir = new File(mcdir, "/mods/daftpvf/");
+        File dir = new File(mcdir, configPath);
         if(!dir.exists() && dir.mkdir())
         {
-            file = new File(dir, fileName + ".txt");
+            file = new File(dir, fileName);
         } 
         else
         {
-            file = new File(dir, fileName + ".txt");
+            file = new File(dir, fileName);
         }
         try
         {
             file.createNewFile();
+            PrintWriter out = new PrintWriter(new FileWriter(file));
+
+            for (String s : defaultItems)
+            {
+                out.println(s);
+            }
+
+            out.close();
+
             scan = new Scanner(file);
             
         }
