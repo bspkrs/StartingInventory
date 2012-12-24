@@ -9,32 +9,37 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.NetClientHandler;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.world.World;
 import bspkrs.util.ModVersionChecker;
 
 public class mod_startingInventory extends BaseMod
 {
     @MLProp(info = "Set to true to allow checking for mod updates, false to disable")
-    public static boolean           allowUpdateCheck = true;
+    public static boolean     allowUpdateCheck = true;
     @MLProp(info = "The length of time in game time ticks (1/20th of a second) that items are allowed to spawn in a fresh world.  If you are on a slower machine and are having trouble with items not spawning, try setting this a little higher")
-    public static int               tickWindow       = 100;
+    public static int         tickWindow       = 100;
     @MLProp(info = "Items will be added to the bonus chest when true (meaning you must set bonus chest to ON). If false, a separate chest will be placed\n\n**ONLY EDIT WHAT IS BELOW THIS**")
-    public static boolean           useBonusChest    = false;
+    public static boolean     useBonusChest    = false;
     
-    boolean                         canGiveItems;
-    String                          fileName;
-    String                          configPath;
-    File                            mcdir;
-    File                            file;
-    private Scanner                 scan;
-    private final List              list;
-    private TileEntityChest         chest;
-    private final String[]          defaultItems     = { "272, 1", "273, 1", "274, 1", "275, 1", "260, 16", "50, 16" };
+    boolean                   canGiveItems;
+    String                    fileName;
+    String                    configPath;
+    File                      mcdir;
+    File                      file;
+    private Scanner           scan;
+    private final List        list;
+    private TileEntityChest   chest;
+    private final String[]    defaultItems     = { "272, 1", "273, 1", "274, 1", "275, 1", "260, 16", "50, 16" };
     
-    private boolean                 checkUpdate;
-    private final ModVersionChecker versionChecker;
-    private final String            versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.5/startingInventory.version";
-    private final String            mcfTopic         = "http://www.minecraftforum.net/topic/1009577-";
+    private ModVersionChecker versionChecker;
+    private final String      versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.5/startingInventory.version";
+    private final String      mcfTopic         = "http://www.minecraftforum.net/topic/1009577-";
     
     public mod_startingInventory()
     {
@@ -57,8 +62,8 @@ public class mod_startingInventory extends BaseMod
             }
         readItems();
         
-        checkUpdate = allowUpdateCheck;
-        versionChecker = new ModVersionChecker(getName(), getVersion(), versionURL, mcfTopic, ModLoader.getLogger());
+        if (allowUpdateCheck)
+            versionChecker = new ModVersionChecker(getName(), getVersion(), versionURL, mcfTopic, ModLoader.getLogger());
     }
     
     @Override
@@ -70,13 +75,14 @@ public class mod_startingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.4.5.r01";
+        return "ML 1.4.6.r01";
     }
     
     @Override
     public void load()
     {
-        versionChecker.checkVersionWithLogging();
+        if (allowUpdateCheck)
+            versionChecker.checkVersionWithLogging();
     }
     
     @Override
@@ -86,12 +92,12 @@ public class mod_startingInventory extends BaseMod
                                                                     // isPlayerInventoryEmpty(mc.thePlayer))
             canGiveItems = !addItems(mc.getIntegratedServer().worldServerForDimension(mc.thePlayer.dimension));
         
-        if (checkUpdate)
+        if (allowUpdateCheck)
         {
             if (!versionChecker.isCurrentVersion())
                 for (String msg : versionChecker.getInGameMessage())
                     mc.thePlayer.addChatMessage(msg);
-            checkUpdate = false;
+            allowUpdateCheck = false;
         }
         
         return canGiveItems && mc.isSingleplayer() && isFreshWorld(mc);
@@ -106,8 +112,8 @@ public class mod_startingInventory extends BaseMod
     
     public TileEntityChest getChest(World world)
     {
-        int x = world.worldInfo.getSpawnX();
-        int z = world.worldInfo.getSpawnZ();
+        int x = world.getWorldInfo().getSpawnX();
+        int z = world.getWorldInfo().getSpawnZ();
         
         if (useBonusChest)
         {
@@ -128,8 +134,8 @@ public class mod_startingInventory extends BaseMod
             Random random = new Random();
             for (int i = 0; i < 10; i++)
             {
-                x = world.worldInfo.getSpawnX() + random.nextInt(6) - random.nextInt(6);
-                z = world.worldInfo.getSpawnZ() + random.nextInt(6) - random.nextInt(6);
+                x = world.getWorldInfo().getSpawnX() + random.nextInt(6) - random.nextInt(6);
+                z = world.getWorldInfo().getSpawnZ() + random.nextInt(6) - random.nextInt(6);
                 int y = world.getTopSolidOrLiquidBlock(x, z);
                 if (world.isAirBlock(x, y, z) && world.doesBlockHaveSolidTopSurface(x, y - 1, z))
                 {
@@ -154,7 +160,7 @@ public class mod_startingInventory extends BaseMod
     {
         try
         {
-            return (int) mc.theWorld.worldInfo.getWorldTime() < tickWindow;
+            return (int) mc.theWorld.getWorldInfo().getWorldTime() < tickWindow;
         }
         catch (Exception e)
         {
