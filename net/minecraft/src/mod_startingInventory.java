@@ -38,7 +38,7 @@ public class mod_startingInventory extends BaseMod
     private final String[]    defaultItems     = { "272, 1", "273, 1", "274, 1", "275, 1", "260, 16", "50, 16" };
     
     private ModVersionChecker versionChecker;
-    private final String      versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.5/startingInventory.version";
+    private final String      versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.6/startingInventory.version";
     private final String      mcfTopic         = "http://www.minecraftforum.net/topic/1009577-";
     
     public mod_startingInventory()
