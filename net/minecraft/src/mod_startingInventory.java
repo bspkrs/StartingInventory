@@ -18,31 +18,38 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 import bspkrs.util.ModVersionChecker;
 
-public class mod_startingInventory extends BaseMod
+public class mod_StartingInventory extends BaseMod
 {
+    private static final String INV              = "inventory";
+    private static final String CHEST            = "chest";
+    
     @MLProp(info = "Set to true to allow checking for mod updates, false to disable")
-    public static boolean     allowUpdateCheck = true;
-    @MLProp(info = "The length of time in game time ticks (1/20th of a second) that items are allowed to spawn in a fresh world.  If you are on a slower machine and are having trouble with items not spawning, try setting this a little higher")
-    public static int         tickWindow       = 100;
-    @MLProp(info = "Items will be added to the bonus chest when true (meaning you must set bonus chest to ON). If false, a separate chest will be placed\n\n**ONLY EDIT WHAT IS BELOW THIS**")
-    public static boolean     useBonusChest    = false;
+    public static boolean       allowUpdateCheck = true;
+    @MLProp(info = "Use \"inventory\" to add items to your inventory on starting a world, use \"chest\" to continue using that lame placed chest nonsense.")
+    public static String        addItemsTo       = INV;
+    @MLProp(info = "Items will be added to the vanilla bonus chest when set to true (meaning you must set bonus chest to ON). If set to false, a separate chest will be placed when addItemsTo=chest")
+    public static boolean       useBonusChest    = false;
+    @MLProp(info = "The length of time in game time ticks (1/20th of a second) that items have to spawn in a fresh world.  If you are on a slower machine and are having trouble with items not spawning, try setting this a little higher\n\n**ONLY EDIT WHAT IS BELOW THIS**")
+    public static int           tickWindow       = 100;
     
-    boolean                   canGiveItems;
-    String                    fileName;
-    String                    configPath;
-    File                      mcdir;
-    File                      file;
-    private Scanner           scan;
-    private final List        list;
-    private TileEntityChest   chest;
-    private final String[]    defaultItems     = { "272, 1", "273, 1", "274, 1", "275, 1", "260, 16", "50, 16" };
+    boolean                     canGiveItems;
+    String                      fileName;
+    String                      configPath;
+    File                        mcdir;
+    File                        file;
+    private Scanner             scan;
+    private final List          list;
+    private TileEntityChest     chest;
+    private final String[]      defaultItems     = { "272, 1", "273, 1", "274, 1", "275, 1", "260, 16", "50, 16" };
+    private Minecraft           mc;
     
-    private ModVersionChecker versionChecker;
-    private final String      versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.6/startingInventory.version";
-    private final String      mcfTopic         = "http://www.minecraftforum.net/topic/1009577-";
+    private ModVersionChecker   versionChecker;
+    private final String        versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.6/startingInventory.version";
+    private final String        mcfTopic         = "http://www.minecraftforum.net/topic/1009577-";
     
-    public mod_startingInventory()
+    public mod_StartingInventory()
     {
+        mc = ModLoader.getMinecraftInstance();
         mcdir = Minecraft.getMinecraftDir();
         fileName = "startingInventory.txt";
         configPath = "/config/StartingInventory/";
@@ -75,7 +82,7 @@ public class mod_startingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.4.6.r01";
+        return "ML 1.4.6.r03";
     }
     
     @Override
@@ -88,8 +95,7 @@ public class mod_startingInventory extends BaseMod
     @Override
     public boolean onTickInGame(float f, Minecraft mc)
     {
-        if (canGiveItems && mc.isSingleplayer() && isFreshWorld(mc))// &&
-                                                                    // isPlayerInventoryEmpty(mc.thePlayer))
+        if (canGiveItems && mc.isSingleplayer() && isFreshWorld(mc))
             canGiveItems = !addItems(mc.getIntegratedServer().worldServerForDimension(mc.thePlayer.dimension));
         
         if (allowUpdateCheck)
@@ -170,43 +176,67 @@ public class mod_startingInventory extends BaseMod
     
     public boolean addItems(World world)
     {
-        chest = getChest(world);
-        if (chest != null)
+        if (this.addItemsTo.equals(CHEST))
         {
-            for (int i = 0; i < chest.getSizeInventory(); i++)
-                chest.setInventorySlotContents(i, null);
-            
+            chest = getChest(world);
+            if (chest != null)
+            {
+                for (int i = 0; i < chest.getSizeInventory(); i++)
+                    chest.setInventorySlotContents(i, null);
+                
+                for (int i = 0; i < Math.min(chest.getSizeInventory(), list.size()); i++)
+                {
+                    addItemToChest(chest, i, (String) list.get(i));
+                }
+                return true;
+            }
+            return false;
+        }
+        else
+        {
             for (int i = 0; i < Math.min(chest.getSizeInventory(), list.size()); i++)
             {
-                addItem(chest, i, (String) list.get(i));
+                addItemToInv((String) list.get(i));
             }
             return true;
         }
-        return false;
     }
     
-    private void addItem(TileEntityChest chest, int slot, String s)
+    private int[] parseLine(String entry)
     {
-        int j = 1;
-        int k = 0;
-        int l = s.indexOf(',');
-        int i1 = s.indexOf(',', l + 1);
-        int i;
-        if (l != -1)
+        int[] r = { 0, 1, 0 };
+        int d1 = entry.indexOf(',');
+        int d2 = entry.indexOf(',', d1 + 1);
+        
+        if (d1 != -1)
         {
-            i = parseInt(s.substring(0, l));
-            if (i1 != -1)
+            r[0] = parseInt(entry.substring(0, d1));
+            if (d2 != -1)
             {
-                j = parseInt(s.substring(l + 1, i1));
-                k = parseInt(s.substring(i1 + 1));
+                r[1] = parseInt(entry.substring(d1 + 1, d2));
+                r[2] = parseInt(entry.substring(d2 + 1));
             }
             else
-                j = parseInt(s.substring(l + 1));
+                r[1] = parseInt(entry.substring(d1 + 1));
         }
         else
-            i = parseInt(s);
-        if (Item.itemsList[i] != null)
-            chest.setInventorySlotContents(slot, new ItemStack(i, j, k));
+            r[0] = parseInt(entry);
+        
+        return r;
+    }
+    
+    private void addItemToInv(String entry)
+    {
+        int[] item = parseLine(entry);
+        if (Item.itemsList[item[0]] != null)
+            mc.getIntegratedServer().worldServerForDimension(mc.thePlayer.dimension).getPlayerEntityByName(mc.thePlayer.username).inventory.addItemStackToInventory(new ItemStack(item[0], item[1], item[2]));
+    }
+    
+    private void addItemToChest(TileEntityChest chest, int slot, String entry)
+    {
+        int[] item = parseLine(entry);
+        if (Item.itemsList[item[0]] != null)
+            chest.setInventorySlotContents(slot, new ItemStack(item[0], item[1], item[2]));
     }
     
     public void readItems()
