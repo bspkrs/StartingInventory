@@ -95,7 +95,7 @@ public class mod_StartingInventory extends BaseMod
     @Override
     public boolean onTickInGame(float f, Minecraft mc)
     {
-        if (canGiveItems && mc.isSingleplayer() && isFreshWorld(mc))
+        if (canGiveItems && mc.isIntegratedServerRunning() && isFreshWorld(mc))
             canGiveItems = !addItems(mc.getIntegratedServer().worldServerForDimension(mc.thePlayer.dimension));
         
         if (allowUpdateCheck)
@@ -106,7 +106,7 @@ public class mod_StartingInventory extends BaseMod
             allowUpdateCheck = false;
         }
         
-        return canGiveItems && mc.isSingleplayer() && isFreshWorld(mc);
+        return canGiveItems && mc.isIntegratedServerRunning() && isFreshWorld(mc);
     }
     
     @Override
@@ -194,7 +194,7 @@ public class mod_StartingInventory extends BaseMod
         }
         else
         {
-            for (int i = 0; i < Math.min(chest.getSizeInventory(), list.size()); i++)
+            for (int i = 0; i < Math.min(mc.thePlayer.inventory.getSizeInventory(), list.size()); i++)
             {
                 addItemToInv((String) list.get(i));
             }
@@ -228,7 +228,7 @@ public class mod_StartingInventory extends BaseMod
     private void addItemToInv(String entry)
     {
         int[] item = parseLine(entry);
-        if (Item.itemsList[item[0]] != null)
+        if (Item.itemsList[item[0]] != null && mc.isIntegratedServerRunning())
             mc.getIntegratedServer().worldServerForDimension(mc.thePlayer.dimension).getPlayerEntityByName(mc.thePlayer.username).inventory.addItemStackToInventory(new ItemStack(item[0], item[1], item[2]));
     }
     
