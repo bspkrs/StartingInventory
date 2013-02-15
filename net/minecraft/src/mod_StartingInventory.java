@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.NetClientHandler;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityChest;
@@ -29,8 +30,8 @@ public class mod_StartingInventory extends BaseMod
     public static String        addItemsTo       = INV;
     @MLProp(info = "Items will be added to the vanilla bonus chest when set to true (meaning you must set bonus chest to ON). If set to false, a separate chest will be placed when addItemsTo=chest")
     public static boolean       useBonusChest    = false;
-    @MLProp(info = "The length of time in game time ticks (1/20th of a second) that items have to spawn in a fresh world.  If you are on a slower machine and are having trouble with items not spawning, try setting this a little higher\n\n**ONLY EDIT WHAT IS BELOW THIS**")
-    public static int           tickWindow       = 100;
+    @MLProp(info = "The length of time in game time ticks (1/20th of a second) that items have to spawn in a fresh world.  If you are having trouble with items not being given, try setting this a little higher\n\n**ONLY EDIT WHAT IS BELOW THIS**")
+    public static int           tickWindow       = 300;
     
     boolean                     canGiveItems;
     String                      fileName;
@@ -40,8 +41,9 @@ public class mod_StartingInventory extends BaseMod
     private Scanner             scan;
     private final List          list;
     private TileEntityChest     chest;
-    private final String[]      defaultItems     = { "272, 1", "273, 1", "274, 1", "275, 1", "260, 16", "50, 16" };
+    private final String[]      defaultItems     = { "274, 1", "273, 1", "272, 1", "275, 1", "260, 16", "50, 16" };
     private Minecraft           mc;
+    private EntityPlayer        player;
     
     private ModVersionChecker   versionChecker;
     private final String        versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.6/startingInventory.version";
@@ -82,7 +84,7 @@ public class mod_StartingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.4.6.r03";
+        return "ML 1.4.6.r04";
     }
     
     @Override
@@ -95,8 +97,10 @@ public class mod_StartingInventory extends BaseMod
     @Override
     public boolean onTickInGame(float f, Minecraft mc)
     {
-        if (canGiveItems && mc.isIntegratedServerRunning() && isFreshWorld(mc))
-            canGiveItems = !addItems(mc.getIntegratedServer().worldServerForDimension(mc.thePlayer.dimension));
+        player = mc.thePlayer;
+        
+        if (canGiveItems && mc.isIntegratedServerRunning() && player != null && isPlayerNewToWorld(player) && createPlayerFile(player) && isFreshWorld(mc))
+            canGiveItems = !addItems(mc.getIntegratedServer().worldServerForDimension(player.dimension));
         
         if (allowUpdateCheck)
         {
@@ -114,6 +118,43 @@ public class mod_StartingInventory extends BaseMod
     {
         ModLoader.setInGameHook(this, true, true);
         canGiveItems = true;
+    }
+    
+    public boolean isPlayerNewToWorld(EntityPlayer player)
+    {
+        File dir = new File(mc.getMinecraftDir(), "/saves/" + mc.theWorld.getSaveHandler().getSaveDirectoryName() + "/StartingInv");
+        return !dir.exists() || !(new File(dir, player.username + ".si")).exists();
+    }
+    
+    public boolean createPlayerFile(EntityPlayer player)
+    {
+        File pFile;
+        File dir = new File(mc.getMinecraftDir(), "/saves/" +
+                mc.getIntegratedServer().worldServerForDimension(player.dimension).getSaveHandler().getSaveDirectoryName() +
+                "/StartingInv");
+        if (!dir.exists() && dir.mkdir())
+        {
+            pFile = new File(dir, player.username + ".si");
+        }
+        else
+        {
+            pFile = new File(dir, player.username + ".si");
+        }
+        try
+        {
+            pFile.createNewFile();
+            PrintWriter out = new PrintWriter(new FileWriter(pFile));
+            
+            out.println("I was here!");
+            
+            out.close();
+            return true;
+            
+        }
+        catch (Exception exception)
+        {
+            return false;
+        }
     }
     
     public TileEntityChest getChest(World world)
@@ -194,7 +235,7 @@ public class mod_StartingInventory extends BaseMod
         }
         else
         {
-            for (int i = 0; i < Math.min(mc.thePlayer.inventory.getSizeInventory(), list.size()); i++)
+            for (int i = 0; i < Math.min(player.inventory.getSizeInventory(), list.size()); i++)
             {
                 addItemToInv((String) list.get(i));
             }
@@ -229,7 +270,7 @@ public class mod_StartingInventory extends BaseMod
     {
         int[] item = parseLine(entry);
         if (Item.itemsList[item[0]] != null && mc.isIntegratedServerRunning())
-            mc.getIntegratedServer().worldServerForDimension(mc.thePlayer.dimension).getPlayerEntityByName(mc.thePlayer.username).inventory.addItemStackToInventory(new ItemStack(item[0], item[1], item[2]));
+            mc.getIntegratedServer().worldServerForDimension(player.dimension).getPlayerEntityByName(player.username).inventory.addItemStackToInventory(new ItemStack(item[0], item[1], item[2]));
     }
     
     private void addItemToChest(TileEntityChest chest, int slot, String entry)
