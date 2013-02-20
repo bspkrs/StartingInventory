@@ -21,17 +21,15 @@ import bspkrs.util.ModVersionChecker;
 
 public class mod_StartingInventory extends BaseMod
 {
-    private static final String INV              = "inventory";
-    private static final String CHEST            = "chest";
+    private static final String INV           = "inventory";
+    private static final String CHEST         = "chest";
     
-    @MLProp(info = "Set to true to allow checking for mod updates, false to disable")
-    public static boolean       allowUpdateCheck = true;
     @MLProp(info = "Use \"inventory\" to add items to your inventory on starting a world, use \"chest\" to continue using that lame placed chest nonsense.")
-    public static String        addItemsTo       = INV;
+    public static String        addItemsTo    = INV;
     @MLProp(info = "Items will be added to the vanilla bonus chest when set to true (meaning you must set bonus chest to ON). If set to false, a separate chest will be placed when addItemsTo=chest")
-    public static boolean       useBonusChest    = false;
+    public static boolean       useBonusChest = false;
     @MLProp(info = "The length of time in game time ticks (1/20th of a second) that items have to spawn in a fresh world.  If you are having trouble with items not being given, try setting this a little higher\n\n**ONLY EDIT WHAT IS BELOW THIS**")
-    public static int           tickWindow       = 300;
+    public static int           tickWindow    = 300;
     
     boolean                     canGiveItems;
     String                      fileName;
@@ -41,13 +39,14 @@ public class mod_StartingInventory extends BaseMod
     private Scanner             scan;
     private final List          list;
     private TileEntityChest     chest;
-    private final String[]      defaultItems     = { "274, 1", "273, 1", "272, 1", "275, 1", "260, 16", "50, 16" };
+    private final String[]      defaultItems  = { "274, 1", "273, 1", "272, 1", "275, 1", "260, 16", "50, 16" };
     private Minecraft           mc;
     private EntityPlayer        player;
     
     private ModVersionChecker   versionChecker;
-    private final String        versionURL       = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.6/startingInventory.version";
-    private final String        mcfTopic         = "http://www.minecraftforum.net/topic/1009577-";
+    private boolean             allowUpdateCheck;
+    private final String        versionURL    = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.6/startingInventory.version";
+    private final String        mcfTopic      = "http://www.minecraftforum.net/topic/1009577-";
     
     public mod_StartingInventory()
     {
@@ -71,6 +70,7 @@ public class mod_StartingInventory extends BaseMod
             }
         readItems();
         
+        allowUpdateCheck = mod_bspkrsCore.allowUpdateCheck;
         if (allowUpdateCheck)
             versionChecker = new ModVersionChecker(getName(), getVersion(), versionURL, mcfTopic, ModLoader.getLogger());
     }
@@ -88,9 +88,15 @@ public class mod_StartingInventory extends BaseMod
     }
     
     @Override
+    public String getPriorities()
+    {
+        return "after:mod_bspkrsCore";
+    }
+    
+    @Override
     public void load()
     {
-        if (allowUpdateCheck)
+        if (allowUpdateCheck && versionChecker != null)
             versionChecker.checkVersionWithLogging();
     }
     
@@ -102,7 +108,7 @@ public class mod_StartingInventory extends BaseMod
         if (canGiveItems && mc.isIntegratedServerRunning() && player != null && isPlayerNewToWorld(player) && createPlayerFile(player) && isFreshWorld(mc))
             canGiveItems = !addItems(mc.getIntegratedServer().worldServerForDimension(player.dimension));
         
-        if (allowUpdateCheck)
+        if (allowUpdateCheck && versionChecker != null)
         {
             if (!versionChecker.isCurrentVersion())
                 for (String msg : versionChecker.getInGameMessage())
