@@ -116,6 +116,12 @@ public class mod_StartingInventory extends BaseMod
             allowUpdateCheck = false;
         }
         
+        if (!(canGiveItems && mc.isIntegratedServerRunning() && isFreshWorld(mc)))
+        {
+            chest = null;
+            player = null;
+        }
+        
         return canGiveItems && mc.isIntegratedServerRunning() && isFreshWorld(mc);
     }
     
@@ -195,10 +201,10 @@ public class mod_StartingInventory extends BaseMod
                     for (int a = -1; a <= -1; a++)
                         for (int b = -1; b <= 1; b++)
                         {
-                            world.setBlockWithNotify(x + a, y, z + b, 0);
-                            world.setBlockWithNotify(x + a, y + 1, z + b, 0);
+                            world.setBlockAndMetadataWithNotify(x + a, y, z + b, 0, 0, 3);
+                            world.setBlockAndMetadataWithNotify(x + a, y + 1, z + b, 0, 0, 3);
                         }
-                    world.setBlockWithNotify(x, y, z, Block.chest.blockID);
+                    world.setBlockAndMetadataWithNotify(x, y, z, Block.chest.blockID, 0, 3);
                     ModLoader.getLogger().log(Level.INFO, "Chest placed at " + x + ", " + y + ", " + z);
                     return (TileEntityChest) world.getBlockTileEntity(x, y, z);
                 }
