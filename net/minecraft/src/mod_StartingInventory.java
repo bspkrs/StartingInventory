@@ -45,7 +45,7 @@ public class mod_StartingInventory extends BaseMod
     
     private ModVersionChecker   versionChecker;
     private boolean             allowUpdateCheck;
-    private final String        versionURL    = "https://dl.dropbox.com/u/20748481/Minecraft/1.4.6/startingInventory.version";
+    private final String        versionURL    = "https://dl.dropbox.com/u/20748481/Minecraft/1.5.0/startingInventory.version";
     private final String        mcfTopic      = "http://www.minecraftforum.net/topic/1009577-";
     
     public mod_StartingInventory()
@@ -84,13 +84,13 @@ public class mod_StartingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.4.6.r04";
+        return "ML 1.5.0.r01";
     }
     
     @Override
     public String getPriorities()
     {
-        return "after:mod_bspkrsCore";
+        return "required-after:mod_bspkrsCore";
     }
     
     @Override
