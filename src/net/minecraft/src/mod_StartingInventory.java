@@ -45,7 +45,7 @@ public class mod_StartingInventory extends BaseMod
     
     private ModVersionChecker   versionChecker;
     private boolean             allowUpdateCheck;
-    private final String        versionURL    = "http://bspk.rs/Minecraft/1.5.0/startingInventory.version";
+    private final String        versionURL    = "http://bspk.rs/Minecraft/1.5.1/startingInventory.version";
     private final String        mcfTopic      = "http://www.minecraftforum.net/topic/1009577-";
     
     public mod_StartingInventory()
@@ -84,7 +84,7 @@ public class mod_StartingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.5.0.r01";
+        return "ML 1.5.1.r01";
     }
     
     @Override
@@ -201,10 +201,10 @@ public class mod_StartingInventory extends BaseMod
                     for (int a = -1; a <= -1; a++)
                         for (int b = -1; b <= 1; b++)
                         {
-                            world.setBlockAndMetadataWithNotify(x + a, y, z + b, 0, 0, 3);
-                            world.setBlockAndMetadataWithNotify(x + a, y + 1, z + b, 0, 0, 3);
+                            world.setBlock(x + a, y, z + b, 0, 0, 3);
+                            world.setBlock(x + a, y + 1, z + b, 0, 0, 3);
                         }
-                    world.setBlockAndMetadataWithNotify(x, y, z, Block.chest.blockID, 0, 3);
+                    world.setBlock(x, y, z, Block.chest.blockID, 0, 3);
                     ModLoader.getLogger().log(Level.INFO, "Chest placed at " + x + ", " + y + ", " + z);
                     return (TileEntityChest) world.getBlockTileEntity(x, y, z);
                 }
