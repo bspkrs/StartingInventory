@@ -17,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
+import bspkrs.util.Const;
 import bspkrs.util.ModVersionChecker;
 
 public class mod_StartingInventory extends BaseMod
@@ -45,7 +46,7 @@ public class mod_StartingInventory extends BaseMod
     
     private ModVersionChecker   versionChecker;
     private boolean             allowUpdateCheck;
-    private final String        versionURL    = "http://192.210.150.163/Minecraft/1.5.1/startingInventory.version";
+    private final String        versionURL    = "http://bspk.rs/Minecraft/" + Const.MCVERSION + "/startingInventory.version";
     private final String        mcfTopic      = "http://www.minecraftforum.net/topic/1009577-";
     
     public mod_StartingInventory()
@@ -84,7 +85,7 @@ public class mod_StartingInventory extends BaseMod
     @Override
     public String getVersion()
     {
-        return "ML 1.5.1.r01";
+        return "ML " + Const.MCVERSION + ".r01";
     }
     
     @Override
@@ -134,7 +135,7 @@ public class mod_StartingInventory extends BaseMod
     
     public boolean isPlayerNewToWorld(EntityPlayer player)
     {
-        File dir = new File(mc.getMinecraftDir(), "/saves/" + mc.theWorld.getSaveHandler().getSaveDirectoryName() + "/StartingInv");
+        File dir = new File(mc.getMinecraftDir(), "/saves/" + mc.theWorld.getSaveHandler().getWorldDirectoryName() + "/StartingInv");
         return !dir.exists() || !(new File(dir, player.username + ".si")).exists();
     }
     
@@ -142,7 +143,7 @@ public class mod_StartingInventory extends BaseMod
     {
         File pFile;
         File dir = new File(mc.getMinecraftDir(), "/saves/" +
-                mc.getIntegratedServer().worldServerForDimension(player.dimension).getSaveHandler().getSaveDirectoryName() +
+                mc.getIntegratedServer().worldServerForDimension(player.dimension).getSaveHandler().getWorldDirectoryName() +
                 "/StartingInv");
         if (!dir.exists() && dir.mkdir())
         {
