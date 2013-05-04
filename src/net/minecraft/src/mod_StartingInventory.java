@@ -45,7 +45,7 @@ public class mod_StartingInventory extends BaseMod
     
     private ModVersionChecker   versionChecker;
     private boolean             allowUpdateCheck;
-    private final String        versionURL    = "http://bspk.rs/Minecraft/1.5.1/startingInventory.version";
+    private final String        versionURL    = "http://192.210.150.163/Minecraft/1.5.1/startingInventory.version";
     private final String        mcfTopic      = "http://www.minecraftforum.net/topic/1009577-";
     
     public mod_StartingInventory()
