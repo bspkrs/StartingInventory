@@ -17,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
+import bspkrs.util.CommonUtils;
 import bspkrs.util.Const;
 import bspkrs.util.ModVersionChecker;
 
@@ -52,7 +53,7 @@ public class mod_StartingInventory extends BaseMod
     public mod_StartingInventory()
     {
         mc = ModLoader.getMinecraftInstance();
-        mcdir = Minecraft.getMinecraftDir();
+        mcdir = new File(CommonUtils.getMinecraftDir());
         fileName = "startingInventory.txt";
         configPath = "/config/StartingInventory/";
         file = new File(mcdir, configPath + fileName);
@@ -135,16 +136,15 @@ public class mod_StartingInventory extends BaseMod
     
     public boolean isPlayerNewToWorld(EntityPlayer player)
     {
-        File dir = new File(mc.getMinecraftDir(), "/saves/" + mc.theWorld.getSaveHandler().getWorldDirectoryName() + "/StartingInv");
+        File dir = new File(mcdir, "/saves/" + mc.theWorld.getSaveHandler().getWorldDirectoryName() + "/StartingInv");
         return !dir.exists() || !(new File(dir, player.username + ".si")).exists();
     }
     
     public boolean createPlayerFile(EntityPlayer player)
     {
         File pFile;
-        File dir = new File(mc.getMinecraftDir(), "/saves/" +
-                mc.getIntegratedServer().worldServerForDimension(player.dimension).getSaveHandler().getWorldDirectoryName() +
-                "/StartingInv");
+        File dir = new File(mcdir, "/saves/" +
+                mc.getIntegratedServer().worldServerForDimension(player.dimension).getSaveHandler().getWorldDirectoryName() + "/StartingInv");
         if (!dir.exists() && dir.mkdir())
         {
             pFile = new File(dir, player.username + ".si");
