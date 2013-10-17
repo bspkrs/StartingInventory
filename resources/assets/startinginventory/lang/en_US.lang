@@ -1,0 +1,3 @@
+commands.startinginv.usage=/startinginv [save/load]
+commands.startinginv.load.success=Items from config file successfully loaded to inventory.
+commands.startinginv.save.success=Current inventory items successfully written to config file.
