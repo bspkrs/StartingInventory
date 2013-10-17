@@ -14,7 +14,7 @@
         <property name="mcp.home" location="${dir.mcp}"/>
         <property name="dev.core.home" location="${dir.core.project}"/>
         <property name="release.home" location="${dir.release}"/>
-        <property name="release.zip" value="[${version.minecraft}]${mod.id}.ML.${version}.zip"/>
+        <property name="release.zip" value="[${version.minecraft}]${mod.id}.Forge.${version}.Universal.zip"/>
 
         <!-- setup python -->
         <property name="python.win" location="${mcp.home}/runtime/bin/python/python_mcp"/>
@@ -100,8 +100,7 @@
     <target name="build-ML-zip">
         <!-- build the zip -->
         <zip destfile="${release.home}/${release.zip}">
-            <fileset dir="${mcp.bin}" includes="bspkrs/crystalwing/*.class"/>
-            <fileset dir="${mcp.bin}" includes="mod_${mod.id}.class"/>
+            <fileset dir="${mcp.bin}" includes="bspkrs/startinginventory/**/*.class"/>
             <fileset dir="${dev.resources}" excludes="mcmod.template,template.pack.mcmeta"/>
             <mappedresources>
                 <concat>
@@ -123,7 +122,7 @@
                             <token key="UPDATEURL" value="${mod.ML.updateUrl}"/>
                             <token key="URL" value="${mod.url}"/>
                             <token key="USEDEPENDANCYINFORMATION" value="${mod.useDependencyInformation}"/>
-                            <token key="VERSION" value="ML ${version}"/>
+                            <token key="VERSION" value="Forge ${version}"/>
                         </replacetokens>
                     </filterchain>
                 </concat>

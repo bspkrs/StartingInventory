@@ -1,3 +1,7 @@
+1.6.4.r02 - 17-Oct-2013
+- ported code to Forge mod
+- changed code to support SMP
+- added /startinginv [save/load] command to allow for generating the config file from a player's current inventory
 1.6.4.r01 - 20-Sep-2013
 - 1.6.4 update
 1.6.2.r01 - 10-Jul-2013
