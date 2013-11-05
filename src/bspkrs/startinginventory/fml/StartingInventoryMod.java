@@ -1,5 +1,7 @@
 package bspkrs.startinginventory.fml;
 
+import java.util.EnumSet;
+
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.NetLoginHandler;
 import net.minecraft.network.packet.NetHandler;
@@ -16,6 +18,7 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.Metadata;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
@@ -23,6 +26,8 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 @Mod(name = "StartingInventory", modid = "StartingInventory", version = "Forge " + StartingInventory.VERSION_NUMBER, dependencies = "required-after:bspkrsCore", useMetadata = true)
 @NetworkMod(clientSideRequired = false, serverSideRequired = false, connectionHandler = StartingInventoryMod.class)
@@ -32,7 +37,7 @@ public class StartingInventoryMod implements IConnectionHandler
     private final String               versionURL = Const.VERSION_URL + "/Minecraft/" + Const.MCVERSION + "/startingInventoryForge.version";
     private final String               mcfTopic   = "http://www.minecraftforum.net/topic/1009577-";
     
-    private MinecraftServer            server;
+    public MinecraftServer             server;
     
     @Metadata(value = "StartingInventory")
     public static ModMetadata          metadata;
@@ -53,6 +58,8 @@ public class StartingInventoryMod implements IConnectionHandler
             versionChecker = new ModVersionChecker(metadata.name, metadata.version, versionURL, mcfTopic);
             versionChecker.checkVersionWithLogging();
         }
+        
+        StartingInventory.init();
     }
     
     @EventHandler
@@ -94,11 +101,7 @@ public class StartingInventoryMod implements IConnectionHandler
     @Override
     public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager)
     {
-        if (StartingInventory.isPlayerNewToWorld(instance.server, netHandler.getPlayer()))
-        {
-            StartingInventory.createPlayerFile(instance.server, netHandler.getPlayer());
-            StartingInventory.addItems(netHandler.getPlayer());
-        }
+        TickRegistry.registerTickHandler(new SIGiveItemTicker(10, netHandler.getPlayer()).addTicks(EnumSet.of(TickType.SERVER)), Side.SERVER);
     }
     
     /**

@@ -17,7 +17,7 @@ import bspkrs.util.Const;
 
 public class StartingInventory
 {
-    public static final String    VERSION_NUMBER = Const.MCVERSION + ".r02";
+    public static final String    VERSION_NUMBER = Const.MCVERSION + ".r03";
     
     boolean                       canGiveItems;
     private static String         fileName       = "startingInventory.txt";
@@ -27,7 +27,7 @@ public class StartingInventory
     private static List<String>   list           = new ArrayList<String>();
     private final static String[] defaultItems   = { "274, 1", "273, 1", "272, 1", "275, 1", "260, 16", "50, 16" };
     
-    static
+    public static void init()
     {
         if (!file.exists())
             createFile();
