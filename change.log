@@ -1,3 +1,6 @@
+1.6.4.r03 - 05-Nov-2013
+- fixed config file generation
+- resolved issue with server join timeouts (hopefully)
 1.6.4.r02 - 17-Oct-2013
 - ported code to Forge mod
 - changed code to support SMP
