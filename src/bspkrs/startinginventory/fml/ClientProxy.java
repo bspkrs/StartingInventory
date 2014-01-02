@@ -1,9 +1,6 @@
 package bspkrs.startinginventory.fml;
 
-import java.util.EnumSet;
-
-import cpw.mods.fml.common.TickType;
-import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -13,6 +10,7 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerClientTicker()
     {
-        TickRegistry.registerTickHandler(new SIGameTicker(EnumSet.of(TickType.CLIENT)), Side.CLIENT);
+        if (!SIGameTicker.isRegistered())
+            FMLCommonHandler.instance().bus().register(new SIGameTicker());
     }
 }

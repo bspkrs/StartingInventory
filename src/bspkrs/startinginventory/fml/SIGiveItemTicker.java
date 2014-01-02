@@ -1,26 +1,38 @@
 package bspkrs.startinginventory.fml;
 
 import net.minecraft.entity.player.EntityPlayer;
-import bspkrs.fml.util.DelayedActionTicker;
 import bspkrs.startinginventory.StartingInventory;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 
-public class SIGiveItemTicker extends DelayedActionTicker
+public class SIGiveItemTicker
 {
     private final EntityPlayer player;
+    private int                delayTicks;
     
     public SIGiveItemTicker(int delayTicks, EntityPlayer player)
     {
-        super(delayTicks);
+        this.delayTicks = delayTicks;
         this.player = player;
     }
     
-    @Override
-    public String getLabel()
+    @SubscribeEvent
+    public void onTick(ServerTickEvent event)
     {
-        return "SIGiveItemTicker";
+        if (event.phase.equals(Phase.START))
+            return;
+        
+        boolean keepTicking = --delayTicks > 0;
+        
+        if (!keepTicking)
+        {
+            onDelayCompletion();
+            FMLCommonHandler.instance().bus().unregister(this);
+        }
     }
     
-    @Override
     protected void onDelayCompletion()
     {
         if (StartingInventory.isPlayerNewToWorld(StartingInventoryMod.instance.server, player))

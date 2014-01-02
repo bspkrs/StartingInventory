@@ -58,4 +58,10 @@ public class CommandStartingInv extends CommandBase
         }
         throw new WrongUsageException("commands.startinginv.usage");
     }
+    
+    @Override
+    public int compareTo(Object o)
+    {
+        return 0;
+    }
 }

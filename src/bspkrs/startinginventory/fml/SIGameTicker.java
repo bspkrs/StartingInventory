@@ -1,50 +1,51 @@
 package bspkrs.startinginventory.fml;
 
-import java.util.EnumSet;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ChatComponentText;
 import bspkrs.bspkrscore.fml.bspkrsCoreMod;
-import bspkrs.fml.util.TickerBase;
+import bspkrs.helpers.entity.player.EntityPlayerHelper;
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 
-public class SIGameTicker extends TickerBase
+public class SIGameTicker
 {
-    private Minecraft mcClient;
-    private boolean   allowUpdateCheck;
+    private Minecraft      mcClient;
+    private static boolean isRegistered = false;
     
-    public SIGameTicker(EnumSet<TickType> tickTypes)
+    public SIGameTicker()
     {
-        super(tickTypes);
         mcClient = FMLClientHandler.instance().getClient();
-        allowUpdateCheck = bspkrsCoreMod.instance.allowUpdateCheck;
+        isRegistered = true;
     }
     
-    @Override
-    public boolean onTick(TickType tick, boolean isStart)
+    @SubscribeEvent
+    public void onTick(ClientTickEvent event)
     {
-        if (isStart)
-        {
-            return true;
-        }
+        if (event.phase.equals(Phase.START))
+            return;
         
-        if (allowUpdateCheck && mcClient != null && mcClient.thePlayer != null)
+        boolean keepTicking = !(mcClient != null && mcClient.thePlayer != null && mcClient.theWorld != null);
+        
+        if (bspkrsCoreMod.instance.allowUpdateCheck && !keepTicking)
         {
             if (StartingInventoryMod.versionChecker != null)
                 if (!StartingInventoryMod.versionChecker.isCurrentVersion())
                     for (String msg : StartingInventoryMod.versionChecker.getInGameMessage())
-                        mcClient.thePlayer.addChatMessage(msg);
+                        EntityPlayerHelper.addChatMessage(mcClient.thePlayer, new ChatComponentText(msg));
             
-            return false;
+            if (!keepTicking)
+            {
+                FMLCommonHandler.instance().bus().unregister(this);
+                isRegistered = false;
+            }
         }
-        
-        return allowUpdateCheck;
     }
     
-    @Override
-    public String getLabel()
+    public static boolean isRegistered()
     {
-        return "SIGameTicker";
+        return isRegistered;
     }
-    
 }

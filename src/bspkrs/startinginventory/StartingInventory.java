@@ -3,21 +3,27 @@ package bspkrs.startinginventory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
+import bspkrs.helpers.entity.player.EntityPlayerHelper;
+import bspkrs.helpers.entity.player.InventoryPlayerHelper;
 import bspkrs.util.CommonUtils;
 import bspkrs.util.Const;
+import cpw.mods.fml.common.registry.GameData;
 
 public class StartingInventory
 {
-    public static final String    VERSION_NUMBER = Const.MCVERSION + ".r03";
+    public static final String    VERSION_NUMBER = Const.MCVERSION + ".r01";
     
     boolean                       canGiveItems;
     private static String         fileName       = "startingInventory.txt";
@@ -25,7 +31,7 @@ public class StartingInventory
     private static File           file           = new File(new File(CommonUtils.getMinecraftDir()), configPath + fileName);
     private static Scanner        scan;
     private static List<String>   list           = new ArrayList<String>();
-    private final static String[] defaultItems   = { "274, 1", "273, 1", "272, 1", "275, 1", "260, 16", "50, 16" };
+    private final static String[] defaultItems   = { "stone_pickaxe, 1", "stone_shovel, 1", "stone_sword, 1", "stone_axe, 1", "apple, 16", "torch, 16" };
     
     public static void init()
     {
@@ -47,7 +53,7 @@ public class StartingInventory
     {
         SaveHandler saveHandler = (SaveHandler) server.worldServerForDimension(0).getSaveHandler();
         File dir = new File(saveHandler.getWorldDirectory(), "/StartingInv");
-        return !dir.exists() || !(new File(dir, player.username + ".si")).exists();
+        return !dir.exists() || !(new File(dir, EntityPlayerHelper.getGameProfile(player).getName() + ".si")).exists();
     }
     
     public static boolean createPlayerFile(MinecraftServer server, EntityPlayer player)
@@ -58,7 +64,7 @@ public class StartingInventory
         if (!dir.exists() && !dir.mkdir())
             return false;
         
-        File pFile = new File(dir, player.username + ".si");
+        File pFile = new File(dir, EntityPlayerHelper.getGameProfile(player).getName() + ".si");
         
         try
         {
@@ -84,34 +90,45 @@ public class StartingInventory
         return true;
     }
     
-    private static int[] parseLine(String entry)
+    private static String[] parseLine(String entry)
     {
-        int[] r = { 0, 1, 0 };
+        String[] r = { "", "1", "0", "" };
         int d1 = entry.indexOf(',');
         int d2 = entry.indexOf(',', d1 + 1);
+        int d3 = entry.indexOf(',', d2 + 1);
         
         if (d1 != -1)
         {
-            r[0] = CommonUtils.parseInt(entry.substring(0, d1));
+            r[0] = entry.substring(0, d1);
             if (d2 != -1)
             {
-                r[1] = CommonUtils.parseInt(entry.substring(d1 + 1, d2));
-                r[2] = CommonUtils.parseInt(entry.substring(d2 + 1));
+                r[1] = entry.substring(d1 + 1, d2);
+                if (d3 != -1)
+                {
+                    r[2] = entry.substring(d2 + 1, d3);
+                    r[3] = entry.substring(d3 + 1);
+                }
+                else
+                    r[2] = entry.substring(d2 + 1);
             }
             else
-                r[1] = CommonUtils.parseInt(entry.substring(d1 + 1));
+                r[1] = entry.substring(d1 + 1);
         }
         else
-            r[0] = CommonUtils.parseInt(entry);
+            r[0] = entry;
         
         return r;
     }
     
     private static void addItemToInv(String entry, EntityPlayer player)
     {
-        int[] item = parseLine(entry);
-        if (Item.itemsList[item[0]] != null)
-            player.inventory.addItemStackToInventory(new ItemStack(item[0], item[1], item[2]));
+        String[] item = parseLine(entry);
+        if (Item.field_150901_e.getObject(item[0]) != null)
+            player.inventory.addItemStackToInventory(new ItemStack((Item) Item.field_150901_e.getObject(item[0]),
+                    CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2])));
+        else if (Block.field_149771_c.getObject(item[0]) != null)
+            player.inventory.addItemStackToInventory(new ItemStack((Block) Block.field_149771_c.getObject(item[0]),
+                    CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2])));
     }
     
     private static void readItems()
@@ -170,7 +187,36 @@ public class StartingInventory
             for (ItemStack itemStack : player.inventory.mainInventory)
             {
                 if (itemStack != null)
-                    list.add(itemStack.itemID + ", " + itemStack.stackSize + (!itemStack.isItemStackDamageable() ? ", " + itemStack.getItemDamage() : ""));
+                {
+                    String name = "";
+                    if (itemStack.getItem() instanceof ItemBlock)
+                    {
+                        ItemBlock iBlock = (ItemBlock) itemStack.getItem();
+                        Block block = null;
+                        try
+                        {
+                            Class itemBlock = ItemBlock.class;
+                            Field blockField = itemBlock.getDeclaredField("field_150939_a");
+                            blockField.setAccessible(true);
+                            block = (Block) blockField.get(iBlock);
+                        }
+                        catch (Throwable e)
+                        {
+                            System.out.println("[StartingInv] Unable to save config for itemstack " + itemStack.toString());
+                            e.printStackTrace();
+                        }
+                        
+                        if (block != null)
+                            name = GameData.blockRegistry.func_148750_c(block);
+                    }
+                    else
+                    {
+                        name = GameData.itemRegistry.func_148750_c(itemStack.getItem());
+                    }
+                    
+                    if (!name.isEmpty())
+                        list.add(name + ", " + itemStack.stackSize + ", " + itemStack.getItemDamage());
+                }
             }
             
             for (String s : list)
@@ -193,7 +239,7 @@ public class StartingInventory
     
     protected static void loadInventoryFromConfigFile(EntityPlayer player)
     {
-        player.inventory.clearInventory(-1, -1);
+        InventoryPlayerHelper.clearInventory(player.inventory, null, -1);
         addItems(player);
     }
 }
