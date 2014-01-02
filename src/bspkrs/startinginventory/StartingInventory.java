@@ -3,15 +3,12 @@ package bspkrs.startinginventory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
@@ -126,9 +123,6 @@ public class StartingInventory
         if (Item.field_150901_e.getObject(item[0]) != null)
             player.inventory.addItemStackToInventory(new ItemStack((Item) Item.field_150901_e.getObject(item[0]),
                     CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2])));
-        else if (Block.field_149771_c.getObject(item[0]) != null)
-            player.inventory.addItemStackToInventory(new ItemStack((Block) Block.field_149771_c.getObject(item[0]),
-                    CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2])));
     }
     
     private static void readItems()
@@ -188,31 +182,7 @@ public class StartingInventory
             {
                 if (itemStack != null)
                 {
-                    String name = "";
-                    if (itemStack.getItem() instanceof ItemBlock)
-                    {
-                        ItemBlock iBlock = (ItemBlock) itemStack.getItem();
-                        Block block = null;
-                        try
-                        {
-                            Class itemBlock = ItemBlock.class;
-                            Field blockField = itemBlock.getDeclaredField("field_150939_a");
-                            blockField.setAccessible(true);
-                            block = (Block) blockField.get(iBlock);
-                        }
-                        catch (Throwable e)
-                        {
-                            System.out.println("[StartingInv] Unable to save config for itemstack " + itemStack.toString());
-                            e.printStackTrace();
-                        }
-                        
-                        if (block != null)
-                            name = GameData.blockRegistry.func_148750_c(block);
-                    }
-                    else
-                    {
-                        name = GameData.itemRegistry.func_148750_c(itemStack.getItem());
-                    }
+                    String name = GameData.itemRegistry.func_148750_c(itemStack.getItem());
                     
                     if (!name.isEmpty())
                         list.add(name + ", " + itemStack.stackSize + ", " + itemStack.getItemDamage());
