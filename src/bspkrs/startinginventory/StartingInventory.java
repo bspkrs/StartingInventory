@@ -184,7 +184,7 @@ public class StartingInventory
                 {
                     String name = GameData.itemRegistry.func_148750_c(itemStack.getItem());
                     
-                    if (!name.isEmpty())
+                    if (name != null && !name.isEmpty())
                         list.add(name + ", " + itemStack.stackSize + ", " + itemStack.getItemDamage());
                 }
             }
