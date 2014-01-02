@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -28,7 +29,7 @@ public class StartingInventory
     private static File           file           = new File(new File(CommonUtils.getMinecraftDir()), configPath + fileName);
     private static Scanner        scan;
     private static List<String>   list           = new ArrayList<String>();
-    private final static String[] defaultItems   = { "stone_pickaxe, 1", "stone_shovel, 1", "stone_sword, 1", "stone_axe, 1", "apple, 16", "torch, 16" };
+    private final static String[] defaultItems   = { "minecraft:stone_pickaxe, 1", "minecraft:stone_shovel, 1", "minecraft:stone_sword, 1", "minecraft:stone_axe, 1", "minecraft:apple, 16", "minecraft:torch, 16" };
     
     public static void init()
     {
@@ -51,6 +52,19 @@ public class StartingInventory
         SaveHandler saveHandler = (SaveHandler) server.worldServerForDimension(0).getSaveHandler();
         File dir = new File(saveHandler.getWorldDirectory(), "/StartingInv");
         return !dir.exists() || !(new File(dir, EntityPlayerHelper.getGameProfile(player).getName() + ".si")).exists();
+    }
+    
+    public static boolean isPlayerInventoryEmpty(InventoryPlayer inv)
+    {
+        for (int i = 0; i < inv.mainInventory.length; i++)
+            if (inv.mainInventory[i] != null)
+                return false;
+        
+        for (int i = 0; i < inv.armorInventory.length; i++)
+            if (inv.armorInventory[i] != null)
+                return false;
+        
+        return true;
     }
     
     public static boolean createPlayerFile(MinecraftServer server, EntityPlayer player)

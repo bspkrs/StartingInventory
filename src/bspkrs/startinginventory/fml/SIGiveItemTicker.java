@@ -38,7 +38,9 @@ public class SIGiveItemTicker
         if (StartingInventory.isPlayerNewToWorld(StartingInventoryMod.instance.server, player))
         {
             StartingInventory.createPlayerFile(StartingInventoryMod.instance.server, player);
-            StartingInventory.addItems(player);
+            
+            if (StartingInventory.isPlayerInventoryEmpty(player.inventory))
+                StartingInventory.addItems(player);
         }
     }
     
