@@ -1,0 +1,21 @@
+{
+  "modListVersion": 2,
+  "modList": [{
+    "modid": "StartingInventory",
+    "name": "StartingInventory",
+    "description": "Allows you to define a list of items that will be given to the player when starting new worlds.",
+    "version": "${mod_version}",
+    "mcversion": "${minecraft_version}",
+    "url": "http://www.minecraftforum.net/topic/1009577-/",
+    "updateUrl": "",
+    "authorList": [ "DaftPVF", "bspkrs" ],
+    "credits": "Original by DaftPVF",
+    "logoFile": "",
+    "screenshots": [  ],
+    "parent": "",
+    "requiredMods": [ "bspkrsCore" ],
+    "dependencies": [ "bspkrsCore" ],
+    "dependants": [  ],
+    "useDependencyInformation": "true"
+  }]
+}
