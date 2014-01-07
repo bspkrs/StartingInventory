@@ -1,0 +1,3 @@
+commands.startinginv.usage=/startinginv [save/load]
+commands.startinginv.load.success=Items von Config-Datei erfolgreich ins Inventar geladen.
+commands.startinginv.save.success=Aktuelles Inventar erfolgreich in Config-Datei gespeichert.
