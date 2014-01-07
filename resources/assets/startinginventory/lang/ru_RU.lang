@@ -1,0 +1,3 @@
+commands.startinginv.usage=/startinginv [save/load]
+commands.startinginv.load.success=Предметы из файла конфигурации успешно загружены в инвентарь.
+commands.startinginv.save.success=Текущие предметы инвентаря успешно записаны в файл конфигурации.
