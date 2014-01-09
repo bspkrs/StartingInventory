@@ -9,15 +9,14 @@ import java.util.Scanner;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
 import bspkrs.helpers.entity.player.EntityPlayerHelper;
 import bspkrs.helpers.entity.player.InventoryPlayerHelper;
+import bspkrs.helpers.item.ItemHelper;
 import bspkrs.util.CommonUtils;
 import bspkrs.util.Const;
-import cpw.mods.fml.common.registry.GameData;
 
 public class StartingInventory
 {
@@ -134,8 +133,8 @@ public class StartingInventory
     private static void addItemToInv(String entry, EntityPlayer player)
     {
         String[] item = parseLine(entry);
-        if (Item.field_150901_e.getObject(item[0]) != null)
-            player.inventory.addItemStackToInventory(new ItemStack((Item) Item.field_150901_e.getObject(item[0]),
+        if (ItemHelper.getItem(item[0]) != null)
+            player.inventory.addItemStackToInventory(new ItemStack(ItemHelper.getItem(item[0]),
                     CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2])));
     }
     
@@ -196,7 +195,7 @@ public class StartingInventory
             {
                 if (itemStack != null)
                 {
-                    String name = GameData.itemRegistry.func_148750_c(itemStack.getItem());
+                    String name = ItemHelper.getUniqueID(itemStack.getItem());
                     
                     if (name != null && !name.isEmpty())
                         list.add(name + ", " + itemStack.stackSize + ", " + itemStack.getItemDamage());
