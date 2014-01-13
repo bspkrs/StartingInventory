@@ -24,7 +24,7 @@ public class StartingInventory
     
     boolean                       canGiveItems;
     private static String         fileName       = "startingInventory.txt";
-    private static String         configPath     = "/config/StartingInventory/";
+    private static String         configPath     = "/config/";
     private static File           file           = new File(new File(CommonUtils.getMinecraftDir()), configPath + fileName);
     private static Scanner        scan;
     private static List<String>   list           = new ArrayList<String>();

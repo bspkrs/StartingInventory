@@ -18,7 +18,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 
-@Mod(name = "StartingInventory", modid = "StartingInventory", version = "Forge " + StartingInventory.VERSION_NUMBER, dependencies = "required-after:bspkrsCore", useMetadata = true)
+@Mod(name = "StartingInventory", modid = "StartingInventory", version = StartingInventory.VERSION_NUMBER, dependencies = "required-after:bspkrsCore", useMetadata = true)
 public class StartingInventoryMod
 {
     protected static ModVersionChecker versionChecker;
