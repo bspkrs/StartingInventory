@@ -1,3 +1,5 @@
+1.7.2.r01 - 19-Jan-2014
+- updated for 1.7.2
 1.6.4.r03 - 05-Nov-2013
 - fixed config file generation
 - resolved issue with server join timeouts (hopefully)
