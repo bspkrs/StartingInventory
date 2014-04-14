@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
@@ -164,7 +163,7 @@ public class StartingInventory
                             NBTTagCompound nbt = (NBTTagCompound) JsonToNBT.func_150315_a(item[3]);
                             itemStack.stackTagCompound = nbt;
                         }
-                        catch (NBTException e)
+                        catch (Throwable e)
                         {
                             FMLLog.log("StartingInventory", Level.ERROR, "Error parsing NBT JSON: %s", item[3]);
                             e.printStackTrace();
