@@ -10,25 +10,32 @@ import java.util.Scanner;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
+
+import org.apache.logging.log4j.Level;
+
 import bspkrs.helpers.entity.player.EntityPlayerHelper;
 import bspkrs.helpers.entity.player.InventoryPlayerHelper;
 import bspkrs.helpers.item.ItemHelper;
 import bspkrs.util.CommonUtils;
 import bspkrs.util.Const;
+import cpw.mods.fml.common.FMLLog;
 
 public class StartingInventory
 {
-    public static final String    VERSION_NUMBER = Const.MCVERSION + ".r01";
+    public static final String     VERSION_NUMBER = Const.MCVERSION + ".r02";
     
-    boolean                       canGiveItems;
-    private static String         fileName       = "startingInventory.txt";
-    private static String         configPath     = "/config/";
-    private static File           file           = new File(new File(CommonUtils.getMinecraftDir()), configPath + fileName);
-    private static Scanner        scan;
-    private static List<String>   list           = new ArrayList<String>();
-    private final static String[] defaultItems   = { "minecraft:stone_pickaxe, 1", "minecraft:stone_shovel, 1", "minecraft:stone_sword, 1", "minecraft:stone_axe, 1", "minecraft:apple, 16", "minecraft:torch, 16" };
+    boolean                        canGiveItems;
+    private static String          fileName       = "startingInventory.txt";
+    private static String          configPath     = "/config/";
+    private static File            file           = new File(new File(CommonUtils.getMinecraftDir()), configPath + fileName);
+    private static Scanner         scan;
+    private static List<ItemStack> itemsList      = new ArrayList<ItemStack>();
+    private final static String[]  defaultItems   = { "minecraft:stone_pickaxe, 1", "minecraft:stone_shovel, 1", "minecraft:stone_sword, 1", "minecraft:stone_axe, 1", "minecraft:apple, 16", "minecraft:torch, 16" };
     
     public static void init()
     {
@@ -93,9 +100,9 @@ public class StartingInventory
     
     public static boolean addItems(EntityPlayer player)
     {
-        for (int i = 0; i < Math.min(player.inventory.getSizeInventory(), list.size()); i++)
+        for (int i = 0; i < Math.min(player.inventory.getSizeInventory(), itemsList.size()); i++)
         {
-            addItemToInv(list.get(i), player);
+            addItemToInv(itemsList.get(i), player);
         }
         return true;
     }
@@ -130,23 +137,45 @@ public class StartingInventory
         return r;
     }
     
-    private static void addItemToInv(String entry, EntityPlayer player)
+    private static void addItemToInv(ItemStack itemStack, EntityPlayer player)
     {
-        String[] item = parseLine(entry);
-        if (ItemHelper.getItem(item[0]) != null)
-            player.inventory.addItemStackToInventory(new ItemStack(ItemHelper.getItem(item[0]),
-                    CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2])));
+        if (itemStack != null)
+        {
+            player.inventory.addItemStackToInventory(itemStack);
+        }
     }
     
     private static void readItems()
     {
-        list.clear();
         if (scan != null)
         {
-            for (; scan.hasNextLine(); list.add(scan.nextLine()))
-            {}
+            itemsList.clear();
+            
+            while (scan.hasNextLine())
+            {
+                String[] item = parseLine(scan.nextLine());
+                if (ItemHelper.getItem(item[0]) != null)
+                {
+                    ItemStack itemStack = new ItemStack(ItemHelper.getItem(item[0]), CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2]));
+                    if (!item[3].isEmpty())
+                    {
+                        try
+                        {
+                            NBTTagCompound nbt = (NBTTagCompound) JsonToNBT.func_150315_a(item[3]);
+                            itemStack.stackTagCompound = nbt;
+                        }
+                        catch (NBTException e)
+                        {
+                            FMLLog.log("StartingInventory", Level.ERROR, "Error parsing NBT JSON: %s", item[3]);
+                            e.printStackTrace();
+                        }
+                    }
+                    itemsList.add(itemStack);
+                }
+            }
+            
+            scan.close();
         }
-        scan.close();
     }
     
     private static void createFile()
@@ -181,7 +210,7 @@ public class StartingInventory
     
     protected static void writeConfigFileFromInventory(EntityPlayer player)
     {
-        list.clear();
+        itemsList.clear();
         try
         {
             if (file.exists())
@@ -195,16 +224,23 @@ public class StartingInventory
             {
                 if (itemStack != null)
                 {
-                    String name = ItemHelper.getUniqueID(itemStack.getItem());
-                    
-                    if (name != null && !name.isEmpty())
-                        list.add(name + ", " + itemStack.stackSize + ", " + itemStack.getItemDamage());
+                    itemsList.add(itemStack);
                 }
             }
             
-            for (String s : list)
+            for (ItemStack itemStack : itemsList)
             {
-                out.println(s);
+                String name = ItemHelper.getUniqueID(itemStack.getItem());
+                
+                if (name != null && !name.isEmpty())
+                {
+                    String line = name + "," + itemStack.stackSize + "," + itemStack.getItemDamage();
+                    
+                    if (itemStack.hasTagCompound())
+                        line += "," + itemStack.stackTagCompound.toString();
+                    
+                    out.println(line);
+                }
             }
             
             out.close();
@@ -223,6 +259,7 @@ public class StartingInventory
     protected static void loadInventoryFromConfigFile(EntityPlayer player)
     {
         InventoryPlayerHelper.clearInventory(player.inventory, null, -1);
+        init();
         addItems(player);
     }
 }
