@@ -18,7 +18,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 
-@Mod(name = "StartingInventory", modid = "StartingInventory", version = StartingInventory.VERSION_NUMBER, dependencies = "required-after:bspkrsCore", useMetadata = true)
+@Mod(modid = Reference.MODID, name = Reference.NAME, version = "@MOD_VERSION@", dependencies = "required-after:bspkrsCore@[@BSCORE_VERSION@,)", useMetadata = true)
 public class StartingInventoryMod
 {
     protected static ModVersionChecker versionChecker;
@@ -27,25 +27,19 @@ public class StartingInventoryMod
     
     public MinecraftServer             server;
     
-    @Metadata(value = "StartingInventory")
+    @Metadata(value = Reference.MODID)
     public static ModMetadata          metadata;
     
-    @SidedProxy(clientSide = "bspkrs.startinginventory.fml.ClientProxy", serverSide = "bspkrs.startinginventory.fml.CommonProxy")
+    @SidedProxy(clientSide = Reference.PROXY_CLIENT, serverSide = Reference.PROXY_COMMON)
     public static CommonProxy          proxy;
     
-    @Instance(value = "StartingInventory")
+    @Instance(value = Reference.MODID)
     public static StartingInventoryMod instance;
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         metadata = event.getModMetadata();
-        
-        if (bspkrsCoreMod.instance.allowUpdateCheck)
-        {
-            versionChecker = new ModVersionChecker(metadata.name, metadata.version, versionURL, mcfTopic);
-            versionChecker.checkVersionWithLogging();
-        }
         
         StartingInventory.init();
     }
@@ -55,6 +49,12 @@ public class StartingInventoryMod
     {
         proxy.registerClientTicker();
         FMLCommonHandler.instance().bus().register(new NetworkHandler());
+        
+        if (bspkrsCoreMod.instance.allowUpdateCheck)
+        {
+            versionChecker = new ModVersionChecker(metadata.name, metadata.version, versionURL, mcfTopic);
+            versionChecker.checkVersionWithLogging();
+        }
     }
     
     @EventHandler

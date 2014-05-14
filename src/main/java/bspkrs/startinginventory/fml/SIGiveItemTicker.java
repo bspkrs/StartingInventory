@@ -14,7 +14,7 @@ public class SIGiveItemTicker
     
     public SIGiveItemTicker(int delayTicks, EntityPlayer player)
     {
-        this.delayTicks = delayTicks;
+        this.delayTicks = Math.max(delayTicks, 1);
         this.player = player;
     }
     
@@ -24,9 +24,7 @@ public class SIGiveItemTicker
         if (event.phase.equals(Phase.START))
             return;
         
-        boolean keepTicking = --delayTicks > 0;
-        
-        if (!keepTicking)
+        if (--delayTicks == 0)
         {
             onDelayCompletion();
             FMLCommonHandler.instance().bus().unregister(this);
@@ -39,8 +37,8 @@ public class SIGiveItemTicker
         {
             StartingInventory.createPlayerFile(StartingInventoryMod.instance.server, player);
             
-            if (StartingInventory.isPlayerInventoryEmpty(player.inventory))
-                StartingInventory.addItems(player);
+            // if (StartingInventory.isPlayerInventoryEmpty(player.inventory))
+            StartingInventory.addItems(player);
         }
     }
     

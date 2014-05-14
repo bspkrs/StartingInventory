@@ -29,18 +29,15 @@ public class SIGameTicker
         
         boolean keepTicking = !(mcClient != null && mcClient.thePlayer != null && mcClient.theWorld != null);
         
-        if (bspkrsCoreMod.instance.allowUpdateCheck && !keepTicking)
+        if (!keepTicking && isRegistered)
         {
-            if (StartingInventoryMod.versionChecker != null)
+            if (bspkrsCoreMod.instance.allowUpdateCheck && StartingInventoryMod.instance.versionChecker != null)
                 if (!StartingInventoryMod.versionChecker.isCurrentVersion())
                     for (String msg : StartingInventoryMod.versionChecker.getInGameMessage())
                         EntityPlayerHelper.addChatMessage(mcClient.thePlayer, new ChatComponentText(msg));
             
-            if (!keepTicking)
-            {
-                FMLCommonHandler.instance().bus().unregister(this);
-                isRegistered = false;
-            }
+            FMLCommonHandler.instance().bus().unregister(this);
+            isRegistered = false;
         }
     }
     
