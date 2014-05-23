@@ -3,7 +3,6 @@ package bspkrs.startinginventory.fml;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import bspkrs.bspkrscore.fml.bspkrsCoreMod;
-import bspkrs.helpers.entity.player.EntityPlayerHelper;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -34,7 +33,7 @@ public class SIGameTicker
             if (bspkrsCoreMod.instance.allowUpdateCheck && StartingInventoryMod.instance.versionChecker != null)
                 if (!StartingInventoryMod.versionChecker.isCurrentVersion())
                     for (String msg : StartingInventoryMod.versionChecker.getInGameMessage())
-                        EntityPlayerHelper.addChatMessage(mcClient.thePlayer, new ChatComponentText(msg));
+                        mcClient.thePlayer.addChatMessage(new ChatComponentText(msg));
             
             FMLCommonHandler.instance().bus().unregister(this);
             isRegistered = false;

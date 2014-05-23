@@ -17,12 +17,10 @@ import net.minecraft.world.storage.SaveHandler;
 
 import org.apache.logging.log4j.Level;
 
-import bspkrs.helpers.entity.player.EntityPlayerHelper;
-import bspkrs.helpers.entity.player.InventoryPlayerHelper;
-import bspkrs.helpers.item.ItemHelper;
 import bspkrs.util.CommonUtils;
 import bspkrs.util.Const;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.registry.GameData;
 
 public class StartingInventory
 {
@@ -56,7 +54,7 @@ public class StartingInventory
     {
         SaveHandler saveHandler = (SaveHandler) server.worldServerForDimension(0).getSaveHandler();
         File dir = new File(saveHandler.getWorldDirectory(), "/StartingInv");
-        return !dir.exists() || !(new File(dir, EntityPlayerHelper.getGameProfile(player).getName() + ".si")).exists();
+        return !dir.exists() || !(new File(dir, player.getGameProfile().getName() + ".si")).exists();
     }
     
     public static boolean isPlayerInventoryEmpty(InventoryPlayer inv)
@@ -80,7 +78,7 @@ public class StartingInventory
         if (!dir.exists() && !dir.mkdir())
             return false;
         
-        File pFile = new File(dir, EntityPlayerHelper.getGameProfile(player).getName() + ".si");
+        File pFile = new File(dir, player.getGameProfile().getName() + ".si");
         
         try
         {
@@ -153,9 +151,9 @@ public class StartingInventory
             while (scan.hasNextLine())
             {
                 String[] item = parseLine(scan.nextLine());
-                if (ItemHelper.getItem(item[0]) != null)
+                if (GameData.itemRegistry.getObject(item[0]) != null)
                 {
-                    ItemStack itemStack = new ItemStack(ItemHelper.getItem(item[0]), CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2]));
+                    ItemStack itemStack = new ItemStack(GameData.itemRegistry.getObject(item[0]), CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2]));
                     if (!item[3].isEmpty())
                     {
                         try
@@ -229,7 +227,7 @@ public class StartingInventory
             
             for (ItemStack itemStack : itemsList)
             {
-                String name = ItemHelper.getUniqueID(itemStack.getItem());
+                String name = GameData.itemRegistry.getNameForObject(itemStack.getItem());
                 
                 if (name != null && !name.isEmpty())
                 {
@@ -257,7 +255,7 @@ public class StartingInventory
     
     protected static void loadInventoryFromConfigFile(EntityPlayer player)
     {
-        InventoryPlayerHelper.clearInventory(player.inventory, null, -1);
+        player.inventory.clearInventory(null, -1);
         init();
         addItems(player);
     }
