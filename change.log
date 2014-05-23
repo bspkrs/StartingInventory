@@ -1,3 +1,6 @@
+1.7.2.r03 - 23-May-2014
+- removed empty inventory requirement
+- proper bspkrsCore version dependency
 1.7.2.r02 - 14-Apr-2014
 - added support for Items with NBT tags
 1.7.2.r01 - 19-Jan-2014
