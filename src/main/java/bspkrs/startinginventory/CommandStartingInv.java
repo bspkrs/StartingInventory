@@ -45,13 +45,13 @@ public class CommandStartingInv extends CommandBase
                 if (args[0].equalsIgnoreCase("load"))
                 {
                     StartingInventory.loadInventoryFromConfigFile(player);
-                    notifyAdmins(sender, "commands.startinginv.load.success");
+                    func_152373_a(sender, this, "commands.startinginv.load.success");
                     return;
                 }
                 else if (args[0].equalsIgnoreCase("save"))
                 {
                     StartingInventory.writeConfigFileFromInventory(player);
-                    notifyAdmins(sender, "commands.startinginv.save.success");
+                    func_152373_a(sender, this, "commands.startinginv.save.success");
                     return;
                 }
             }
