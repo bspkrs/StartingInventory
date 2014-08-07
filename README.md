@@ -6,8 +6,8 @@ This repo contains source files for Forge (dependant on bspkrsCore).
 ## Links of Interest
  - [Official Minecraft Forum Thread](http://www.minecraftforum.net/topic/1009577-)
  - [Old ModLoader Downloads](http://bspk.rs/MC/StartingInventory_ML/index.html)
- - [Forge Player Downloads](http://bspk.rs/MC/StartingInventory_Forge/index.html) - for Minecraft players to use
- - [Developer Downloads](http://bspk.rs/MC/StartingInventory_Forge/deobf/index.html) - for developers to use in an IDE such as Eclipse
+ - [Forge Player Downloads](http://bspk.rs/MC/StartingInventory/index.html) - for Minecraft players to use
+ - [Developer Downloads](http://bspk.rs/MC/StartingInventory/deobf/index.html) - for developers to use in an IDE such as Eclipse
  - [Issue Tracking System](https://github.com/bspkrs/StartingInventory/issues)
  - [Contributing](#contributing) - for those that want to help out  
  - [License](https://raw.github.com/bspkrs/StartingInventory/master/src/main/resources/LICENSE)
@@ -71,7 +71,7 @@ This section assumes that you're using the command-line version of Git.
 
 1. Open up your command line.
 2. Navigate to a place where you want to download StartingInventory's source (eg `C:\Development\Github\Minecraft\`) by executing `cd [folder location]`. This location is known as `mcdev` from now on.
-3. Execute `git clone git@github.com:Lunatrius/StartingInventory.git`. This will download StartingInventory's source into `mcdev`.
+3. Execute `git clone git@github.com:bspkrs/StartingInventory.git`. This will download StartingInventory's source into `mcdev`.
 4. Right now, you should have a directory that looks something like:
 
 ***

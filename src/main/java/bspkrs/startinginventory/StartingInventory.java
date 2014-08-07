@@ -151,9 +151,9 @@ public class StartingInventory
             while (scan.hasNextLine())
             {
                 String[] item = parseLine(scan.nextLine());
-                if (GameData.itemRegistry.getObject(item[0]) != null)
+                if (GameData.getItemRegistry().getObject(item[0]) != null)
                 {
-                    ItemStack itemStack = new ItemStack(GameData.itemRegistry.getObject(item[0]), CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2]));
+                    ItemStack itemStack = new ItemStack(GameData.getItemRegistry().getObject(item[0]), CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2]));
                     if (!item[3].isEmpty())
                     {
                         try
@@ -227,7 +227,7 @@ public class StartingInventory
             
             for (ItemStack itemStack : itemsList)
             {
-                String name = GameData.itemRegistry.getNameForObject(itemStack.getItem());
+                String name = GameData.getItemRegistry().getNameForObject(itemStack.getItem());
                 
                 if (name != null && !name.isEmpty())
                 {
