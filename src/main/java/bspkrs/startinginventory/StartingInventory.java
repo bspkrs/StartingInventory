@@ -138,7 +138,7 @@ public class StartingInventory
     {
         if (itemStack != null)
         {
-            player.inventory.addItemStackToInventory(itemStack);
+            player.inventory.addItemStackToInventory(itemStack.copy());
         }
     }
     

@@ -14,6 +14,7 @@ import cpw.mods.fml.common.Mod.Metadata;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
@@ -40,8 +41,6 @@ public class StartingInventoryMod
     public void preInit(FMLPreInitializationEvent event)
     {
         metadata = event.getModMetadata();
-        
-        StartingInventory.init();
     }
     
     @EventHandler
@@ -55,6 +54,12 @@ public class StartingInventoryMod
             versionChecker = new ModVersionChecker(metadata.name, metadata.version, versionURL, mcfTopic);
             versionChecker.checkVersionWithLogging();
         }
+    }
+    
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event)
+    {
+        StartingInventory.init();
     }
     
     @EventHandler
