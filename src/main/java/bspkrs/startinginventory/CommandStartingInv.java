@@ -12,28 +12,28 @@ public class CommandStartingInv extends CommandBase
     {
         return "startinginv";
     }
-    
+
     @Override
     public String getCommandUsage(ICommandSender icommandsender)
     {
         return "commands.startinginv.usage";
     }
-    
+
     @Override
     public int getRequiredPermissionLevel()
     {
         return 3;
     }
-    
+
     @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender)
     {
         if (sender instanceof EntityPlayer)
             return sender.canCommandSenderUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
-        
+
         return false;
     }
-    
+
     @Override
     public void processCommand(ICommandSender sender, String[] args)
     {
@@ -45,20 +45,20 @@ public class CommandStartingInv extends CommandBase
                 if (args[0].equalsIgnoreCase("load"))
                 {
                     StartingInventory.loadInventoryFromConfigFile(player);
-                    func_152373_a(sender, this, "commands.startinginv.load.success");
+                    notifyOperators(sender, this, "commands.startinginv.load.success");
                     return;
                 }
                 else if (args[0].equalsIgnoreCase("save"))
                 {
                     StartingInventory.writeConfigFileFromInventory(player);
-                    func_152373_a(sender, this, "commands.startinginv.save.success");
+                    notifyOperators(sender, this, "commands.startinginv.save.success");
                     return;
                 }
             }
         }
         throw new WrongUsageException("commands.startinginv.usage");
     }
-    
+
     @Override
     public int compareTo(Object o)
     {

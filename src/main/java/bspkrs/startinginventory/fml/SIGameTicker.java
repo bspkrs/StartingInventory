@@ -13,33 +13,33 @@ public class SIGameTicker
 {
     private Minecraft      mcClient;
     private static boolean isRegistered = false;
-    
+
     public SIGameTicker()
     {
         mcClient = FMLClientHandler.instance().getClient();
         isRegistered = true;
     }
-    
+
     @SubscribeEvent
     public void onTick(ClientTickEvent event)
     {
         if (event.phase.equals(Phase.START))
             return;
-        
+
         boolean keepTicking = !(mcClient != null && mcClient.thePlayer != null && mcClient.theWorld != null);
-        
+
         if (!keepTicking && isRegistered)
         {
             if (bspkrsCoreMod.instance.allowUpdateCheck && StartingInventoryMod.instance.versionChecker != null)
                 if (!StartingInventoryMod.versionChecker.isCurrentVersion())
                     for (String msg : StartingInventoryMod.versionChecker.getInGameMessage())
                         mcClient.thePlayer.addChatMessage(new ChatComponentText(msg));
-            
+
             FMLCommonHandler.instance().bus().unregister(this);
             isRegistered = false;
         }
     }
-    
+
     public static boolean isRegistered()
     {
         return isRegistered;

@@ -25,7 +25,7 @@ import cpw.mods.fml.common.registry.GameData;
 public class StartingInventory
 {
     public static final String     VERSION_NUMBER = Const.MCVERSION + ".r02";
-    
+
     boolean                        canGiveItems;
     private static String          fileName       = "startingInventory.txt";
     private static String          configPath     = "/config/";
@@ -33,7 +33,7 @@ public class StartingInventory
     private static Scanner         scan;
     private static List<ItemStack> itemsList      = new ArrayList<ItemStack>();
     private final static String[]  defaultItems   = { "minecraft:stone_pickaxe, 1", "minecraft:stone_shovel, 1", "minecraft:stone_sword, 1", "minecraft:stone_axe, 1", "minecraft:apple, 16", "minecraft:torch, 16" };
-    
+
     public static void init()
     {
         if (!file.exists())
@@ -49,37 +49,37 @@ public class StartingInventory
             }
         readItems();
     }
-    
+
     public static boolean isPlayerNewToWorld(MinecraftServer server, EntityPlayer player)
     {
         SaveHandler saveHandler = (SaveHandler) server.worldServerForDimension(0).getSaveHandler();
         File dir = new File(saveHandler.getWorldDirectory(), "/StartingInv");
         return !dir.exists() || !(new File(dir, player.getGameProfile().getName() + ".si")).exists();
     }
-    
+
     public static boolean isPlayerInventoryEmpty(InventoryPlayer inv)
     {
         for (int i = 0; i < inv.mainInventory.length; i++)
             if (inv.mainInventory[i] != null)
                 return false;
-        
+
         for (int i = 0; i < inv.armorInventory.length; i++)
             if (inv.armorInventory[i] != null)
                 return false;
-        
+
         return true;
     }
-    
+
     public static boolean createPlayerFile(MinecraftServer server, EntityPlayer player)
     {
         SaveHandler saveHandler = (SaveHandler) server.worldServerForDimension(0).getSaveHandler();
         File dir = new File(saveHandler.getWorldDirectory(), "/StartingInv");
-        
+
         if (!dir.exists() && !dir.mkdir())
             return false;
-        
+
         File pFile = new File(dir, player.getGameProfile().getName() + ".si");
-        
+
         try
         {
             pFile.createNewFile();
@@ -87,14 +87,14 @@ public class StartingInventory
             out.println("I was here!");
             out.close();
             return true;
-            
+
         }
         catch (Exception exception)
         {
             return false;
         }
     }
-    
+
     public static boolean addItems(EntityPlayer player)
     {
         for (int i = 0; i < Math.min(player.inventory.getSizeInventory(), itemsList.size()); i++)
@@ -103,14 +103,14 @@ public class StartingInventory
         }
         return true;
     }
-    
+
     private static String[] parseLine(String entry)
     {
         String[] r = { "", "1", "0", "" };
         int d1 = entry.indexOf(',');
         int d2 = entry.indexOf(',', d1 + 1);
         int d3 = entry.indexOf(',', d2 + 1);
-        
+
         if (d1 != -1)
         {
             r[0] = entry.substring(0, d1);
@@ -130,10 +130,10 @@ public class StartingInventory
         }
         else
             r[0] = entry;
-        
+
         return r;
     }
-    
+
     private static void addItemToInv(ItemStack itemStack, EntityPlayer player)
     {
         if (itemStack != null)
@@ -141,13 +141,13 @@ public class StartingInventory
             player.inventory.addItemStackToInventory(itemStack.copy());
         }
     }
-    
+
     private static void readItems()
     {
         if (scan != null)
         {
             itemsList.clear();
-            
+
             while (scan.hasNextLine())
             {
                 String[] item = parseLine(scan.nextLine());
@@ -158,7 +158,7 @@ public class StartingInventory
                     {
                         try
                         {
-                            NBTTagCompound nbt = (NBTTagCompound) JsonToNBT.func_150315_a(item[3]);
+                            NBTTagCompound nbt = (NBTTagCompound) JsonToNBT.func_150315_a(item[3].replace("\\n", "\n"));
                             itemStack.stackTagCompound = nbt;
                         }
                         catch (Throwable e)
@@ -170,11 +170,11 @@ public class StartingInventory
                     itemsList.add(itemStack);
                 }
             }
-            
+
             scan.close();
         }
     }
-    
+
     private static void createFile()
     {
         File dir = new File(new File(CommonUtils.getMinecraftDir()), configPath);
@@ -190,21 +190,21 @@ public class StartingInventory
         {
             file.createNewFile();
             PrintWriter out = new PrintWriter(new FileWriter(file));
-            
+
             for (String s : defaultItems)
             {
                 out.println(s);
             }
-            
+
             out.close();
-            
+
             scan = new Scanner(file);
-            
+
         }
         catch (Exception exception)
         {}
     }
-    
+
     protected static void writeConfigFileFromInventory(EntityPlayer player)
     {
         itemsList.clear();
@@ -212,11 +212,11 @@ public class StartingInventory
         {
             if (file.exists())
                 file.delete();
-            
+
             file.createNewFile();
-            
+
             PrintWriter out = new PrintWriter(new FileWriter(file));
-            
+
             for (ItemStack itemStack : player.inventory.mainInventory)
             {
                 if (itemStack != null)
@@ -224,35 +224,35 @@ public class StartingInventory
                     itemsList.add(itemStack);
                 }
             }
-            
+
             for (ItemStack itemStack : itemsList)
             {
                 String name = GameData.getItemRegistry().getNameForObject(itemStack.getItem());
-                
+
                 if (name != null && !name.isEmpty())
                 {
-                    String line = name + "," + itemStack.stackSize + "," + itemStack.getItemDamage();
-                    
+                    String line = name + "," + itemStack.stackSize + "," + itemStack.getMetadata();
+
                     if (itemStack.hasTagCompound())
-                        line += "," + itemStack.stackTagCompound.toString();
-                    
+                        line += "," + itemStack.stackTagCompound.toString().replace("\n", "\\n");
+
                     out.println(line);
                 }
             }
-            
+
             out.close();
-            
+
             scan = new Scanner(file);
-            
+
         }
         catch (Exception exception)
         {
             exception.printStackTrace();
         }
-        
+
         readItems();
     }
-    
+
     protected static void loadInventoryFromConfigFile(EntityPlayer player)
     {
         player.inventory.clearInventory(null, -1);
