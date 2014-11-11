@@ -1,3 +1,6 @@
+1.7.10.r03 - 11-Nov-2013
+- removed dropbox URLs
+- fixed NBT tag handling when values contain newlines (closes #7)
 1.7.10.r02 - 19-Aug-2014
 - fix mod items not being added
 - fix items not being added after giving items the first time
