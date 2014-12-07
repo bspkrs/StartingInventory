@@ -1,0 +1,3 @@
+commands.startinginv.usage=/startinginv [save/load]
+commands.startinginv.load.success=Przedmioty z pliku konfiguracyjnego poprawnie załadowane do ekwipunku.
+commands.startinginv.save.success=Przedmioty z obecnego ekwipunku zostały poprawnie zapisane do pliku konfiguracyjnego.
