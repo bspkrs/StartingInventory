@@ -29,13 +29,13 @@ public class CommandStartingInv extends CommandBase
     public boolean canCommandSenderUseCommand(ICommandSender sender)
     {
         if (sender instanceof EntityPlayer)
-            return sender.canCommandSenderUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
+            return sender.canUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
 
         return false;
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args)
+    public void processCommand(ICommandSender sender, String[] args) throws WrongUsageException
     {
         if (args.length == 1)
         {

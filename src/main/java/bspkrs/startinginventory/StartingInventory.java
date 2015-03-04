@@ -5,7 +5,10 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -14,27 +17,36 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.SaveHandler;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.registry.GameData;
 
 import org.apache.logging.log4j.Level;
 
 import bspkrs.util.CommonUtils;
-import bspkrs.util.Const;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.registry.GameData;
 
 public class StartingInventory
 {
-    public static final String     VERSION_NUMBER = Const.MCVERSION + ".r02";
+    private static String                  fileName         = "startingInventory.txt";
+    private static String                  configPath       = "/config/";
+    private static final String            NEW_LINE_STR     = "<_newline_>";
+    private static final String            NEW_LINE_ALT_STR = ">newline<";
+    private static File                    file             = new File(new File(CommonUtils.getMinecraftDir()), configPath + fileName);
+    private static Scanner                 scan;
+    private static Map<Integer, ItemStack> itemMap          = new TreeMap<Integer, ItemStack>();
+    private static List<ItemStack>         itemList         = new ArrayList<ItemStack>();
+    private final static String[]          defaultItems     = {
+                                                            "# Lines that begin with [<index>] will be loaded into the inventory slot at the given index.",
+                                                            "# Indexes for the vanilla inventory are:",
+                                                            "#     0-8  : player hotbar",
+                                                            "#     9-35 : main inventory",
+                                                            "#     36-39: armor inventory in the order boots, leggings, chestplate, helmet",
+                                                            "# If a given index is out of range the mod will attempt to load that item into the first available inventory slot after adding all other items.",
+                                                            "[36]minecraft:leather_boots, 1", "[37]minecraft:leather_leggings, 1", "[38]minecraft:leather_chestplate, 1",
+                                                            "[39]minecraft:leather_chestplate, 1", "minecraft:stone_pickaxe, 1", "minecraft:stone_shovel, 1",
+                                                            "minecraft:stone_sword, 1", "minecraft:stone_axe, 1", "minecraft:apple, 16", "minecraft:torch, 16"
+                                                            };
 
-    boolean                        canGiveItems;
-    private static String          fileName       = "startingInventory.txt";
-    private static String          configPath     = "/config/";
-    private static File            file           = new File(new File(CommonUtils.getMinecraftDir()), configPath + fileName);
-    private static Scanner         scan;
-    private static List<ItemStack> itemsList      = new ArrayList<ItemStack>();
-    private final static String[]  defaultItems   = { "minecraft:stone_pickaxe, 1", "minecraft:stone_shovel, 1", "minecraft:stone_sword, 1", "minecraft:stone_axe, 1", "minecraft:apple, 16", "minecraft:torch, 16" };
-
-    public static void init()
+    public static void init(EntityPlayer player)
     {
         if (!file.exists())
             createFile();
@@ -47,7 +59,7 @@ public class StartingInventory
             {
                 e.printStackTrace();
             }
-        readItems();
+        readItems(player);
     }
 
     public static boolean isPlayerNewToWorld(MinecraftServer server, EntityPlayer player)
@@ -97,9 +109,13 @@ public class StartingInventory
 
     public static boolean addItems(EntityPlayer player)
     {
-        for (int i = 0; i < Math.min(player.inventory.getSizeInventory(), itemsList.size()); i++)
+        for (Entry<Integer, ItemStack> e : itemMap.entrySet())
         {
-            addItemToInv(itemsList.get(i), player);
+            player.inventory.setInventorySlotContents(e.getKey(), e.getValue());
+        }
+        for (ItemStack itemStack : itemList)
+        {
+            player.inventory.addItemStackToInventory(itemStack);
         }
         return true;
     }
@@ -134,23 +150,37 @@ public class StartingInventory
         return r;
     }
 
-    private static void addItemToInv(ItemStack itemStack, EntityPlayer player)
-    {
-        if (itemStack != null)
-        {
-            player.inventory.addItemStackToInventory(itemStack.copy());
-        }
-    }
-
-    private static void readItems()
+    private static void readItems(EntityPlayer player)
     {
         if (scan != null)
         {
-            itemsList.clear();
+            itemList.clear();
+            itemMap.clear();
 
             while (scan.hasNextLine())
             {
-                String[] item = parseLine(scan.nextLine());
+                int slot = -1;
+                String line = scan.nextLine();
+
+                if (line.startsWith("#"))
+                    continue;
+
+                if (line.startsWith("["))
+                {
+                    try
+                    {
+                        slot = Integer.parseInt(line.substring(1, line.indexOf("]")).trim());
+                        line = line.substring(line.indexOf("]") + 1);
+                    }
+                    catch (Throwable e)
+                    {
+                        FMLLog.log("StartingInventory", Level.ERROR, "Error parsing item entry: %s", line);
+                        e.printStackTrace();
+                        continue;
+                    }
+                }
+
+                String[] item = parseLine(line);
                 if (GameData.getItemRegistry().getObject(item[0]) != null)
                 {
                     ItemStack itemStack = new ItemStack(GameData.getItemRegistry().getObject(item[0]), CommonUtils.parseInt(item[1]), CommonUtils.parseInt(item[2]));
@@ -158,16 +188,20 @@ public class StartingInventory
                     {
                         try
                         {
-                            NBTTagCompound nbt = (NBTTagCompound) JsonToNBT.func_150315_a(item[3].replace("\\n", "\n"));
-                            itemStack.stackTagCompound = nbt;
+                            NBTTagCompound nbt = JsonToNBT.getTagFromJson(item[3].replace("\n", "\\n").replace(NEW_LINE_STR, "\n").replace(NEW_LINE_ALT_STR, NEW_LINE_STR));
+                            itemStack.setTagCompound(nbt);
                         }
                         catch (Throwable e)
                         {
                             FMLLog.log("StartingInventory", Level.ERROR, "Error parsing NBT JSON: %s", item[3]);
                             e.printStackTrace();
+                            continue;
                         }
                     }
-                    itemsList.add(itemStack);
+                    if ((slot > -1) && (slot < (player != null ? player.inventory.getSizeInventory() : 40)))
+                        itemMap.put(slot, itemStack);
+                    else
+                        itemList.add(itemStack);
                 }
             }
 
@@ -207,7 +241,8 @@ public class StartingInventory
 
     protected static void writeConfigFileFromInventory(EntityPlayer player)
     {
-        itemsList.clear();
+        itemMap.clear();
+        itemList.clear();
         try
         {
             if (file.exists())
@@ -217,26 +252,24 @@ public class StartingInventory
 
             PrintWriter out = new PrintWriter(new FileWriter(file));
 
-            for (ItemStack itemStack : player.inventory.mainInventory)
+            for (int i = 0; i < player.inventory.getSizeInventory(); i++)
             {
+                ItemStack itemStack = player.inventory.getStackInSlot(i);
                 if (itemStack != null)
                 {
-                    itemsList.add(itemStack);
-                }
-            }
+                    itemMap.put(i, itemStack);
 
-            for (ItemStack itemStack : itemsList)
-            {
-                String name = GameData.getItemRegistry().getNameForObject(itemStack.getItem());
+                    String name = GameData.getItemRegistry().getNameForObject(itemStack.getItem()).toString();
 
-                if (name != null && !name.isEmpty())
-                {
-                    String line = name + "," + itemStack.stackSize + "," + itemStack.getMetadata();
+                    if ((name != null) && !name.isEmpty())
+                    {
+                        String line = "[" + i + "]" + name + "," + itemStack.stackSize + "," + itemStack.getMetadata();
 
-                    if (itemStack.hasTagCompound())
-                        line += "," + itemStack.stackTagCompound.toString().replace("\n", "\\n");
+                        if (itemStack.hasTagCompound())
+                            line += "," + itemStack.getTagCompound().toString().replace(NEW_LINE_STR, NEW_LINE_ALT_STR).replace("\n", NEW_LINE_STR);
 
-                    out.println(line);
+                        out.println(line);
+                    }
                 }
             }
 
@@ -250,13 +283,13 @@ public class StartingInventory
             exception.printStackTrace();
         }
 
-        readItems();
+        readItems(player);
     }
 
     protected static void loadInventoryFromConfigFile(EntityPlayer player)
     {
-        player.inventory.clearInventory(null, -1);
-        init();
+        player.inventory.clear();
+        init(player);
         addItems(player);
     }
 }
