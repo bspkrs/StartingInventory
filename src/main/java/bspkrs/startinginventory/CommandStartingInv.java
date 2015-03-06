@@ -29,7 +29,7 @@ public class CommandStartingInv extends CommandBase
     public boolean canCommandSenderUseCommand(ICommandSender sender)
     {
         if (sender instanceof EntityPlayer)
-            return sender.canUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
+            return sender.canCommandSenderUseCommand(this.getRequiredPermissionLevel(), this.getCommandName());
 
         return false;
     }
