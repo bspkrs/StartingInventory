@@ -1,3 +1,6 @@
+1.8.r01 - 06-Mar-2015
+- 1.8 update
+- added armor slots support as well as specific inventory slots support (thank mDiyo)
 1.7.10.r03 - 11-Nov-2013
 - removed dropbox URLs
 - fixed NBT tag handling when values contain newlines (closes #7)
